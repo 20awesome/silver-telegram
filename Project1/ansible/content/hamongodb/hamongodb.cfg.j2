@@ -1,0 +1,55 @@
+
+global
+	log /dev/log	local0
+	log /dev/log	local1 notice
+	chroot /var/lib/haproxy
+	user haproxy
+	group haproxy
+	daemon
+	maxconn 32000
+	ulimit-n 65536
+defaults
+	log	global
+
+	option dontlognull
+	option redispatch
+	option tcp-smart-accept 
+	option tcp-smart-connect
+
+
+        timeout connect 50000s
+        timeout check   3000
+        timeout client  50000s
+        timeout server  50000s
+
+
+	errorfile 400 /etc/haproxy/errors/400.http
+	errorfile 403 /etc/haproxy/errors/403.http
+	errorfile 408 /etc/haproxy/errors/408.http
+	errorfile 500 /etc/haproxy/errors/500.http
+	errorfile 502 /etc/haproxy/errors/502.http
+	errorfile 503 /etc/haproxy/errors/503.http
+	errorfile 504 /etc/haproxy/errors/504.http
+listen stats :8081
+        balance
+        mode http
+       	
+	stats enable
+        stats auth {{haproxyuser}}:{{haproxypassword}}
+        stats uri /haproxyStats
+
+
+frontend haproxymongo.coachesdirectory.com  
+    bind *:27017  
+    mode tcp  
+    maxconn 32000
+    default_backend nodes  
+
+backend nodes  
+    mode tcp
+    fullconn 32000
+    balance roundrobin  
+    server mongo1.coachesdirectory.com {{master_mongo}}:27017 check inter 1s weight 40
+    server mongo2.coachesdirectory.com {{slave_mongo}}:27017 check inter 1s weight 30 backup
+    #server mongo3.coachesdirectory.com 10.128.11.93:27017 check inter 1s weight 20 backup
+

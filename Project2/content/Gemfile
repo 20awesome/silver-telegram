@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+gem 'sensu-plugins-network-checks'
+gem 'sensu-plugins-disk-checks'
+gem 'sensu-plugins-memory-checks'
+gem 'sensu-plugins-cpu-checks'
+gem 'sensu-plugins-network-checks'

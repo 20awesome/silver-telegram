@@ -1,0 +1,19 @@
+inet_interfaces = {{ansible_eth0}},127.0.0.1
+smtp_bind_address = {{ansible_eth0}}
+
+alias_maps = hash:/etc/aliases
+
+myhostname = {{ansible_hostname}}
+mydomain = coachesdirectory.com
+myorigin = $mydomain
+
+mydestination = $myhostname ,localhost.$mydomain, localhost.localdomain, localhost
+
+
+smtp_generic_maps = hash:/etc/postfix/generic
+smtp_address_preference = ipv4 
+
+
+#debug_peer_list = localhost.com
+#debug_peer_level = 2
+

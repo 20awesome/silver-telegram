@@ -1,0 +1,57 @@
+---
+- hosts: sensu-client
+
+  tasks:
+    - apt_key: id=7580C77F url=http://repos.sensuapp.org/apt/pubkey.gpg state=present
+    - apt_repository: repo='deb http://repos.sensuapp.org/apt sensu main' state=present
+
+    - name: install sensu
+      apt: pkg=sensu state=present update_cache=yes
+      tags:
+      - sensu
+
+    - name: install config.json sensu 
+      copy: src=content/config.json dest=/etc/sensu/config.json owner=sensu group=sensu mode=755
+      tags:
+      - sensu
+
+    - name: install Gemfile sensu 
+      copy: src=content/Gemfile dest=/etc/sensu/Gemfile owner=sensu group=sensu mode=755
+      tags:
+      - sensu
+
+    - name: install sensu em ruby 
+      copy: src=content/sensu dest=/etc/default/sensu owner=root group=root mode=755
+      tags:
+      - sensu
+
+    - name: update client json
+      template: src=content/client.json.j2 dest=/etc/sensu/conf.d/client.json owner=sensu group=sensu mode=0644
+      tags:
+      - sensu
+
+    - name: install bundle
+      shell:  /opt/sensu/embedded/bin/gem install bundler
+      tags:
+      - sensu
+
+    - name: install gemfile
+      shell: cd /etc/sensu && /opt/sensu/embedded/bin/bundle install 
+      tags:
+      - sensu
+
+
+    - name: service sensu restart
+      shell: /etc/init.d/sensu-client  restart
+      tags:
+      - sensu
+
+    
+    - name: Start sensu and enable at boot
+      service: name=sensu-client
+               enabled=yes
+               state=restarted
+      tags:
+        - sensu
+
+

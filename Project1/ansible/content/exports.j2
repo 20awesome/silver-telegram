@@ -1,0 +1,2 @@
+/home/deployer/webapp/mascots       {{ hostvars[groups['nfs-client'][0]]['ansible_eth1’][‘ipv4']['address'] }}(rw,sync,no_root_squash,no_subtree_check)
+/home/deployer/webapp/mascots       {{ hostvars[groups['nfs-client’][1]][‘ansible_eth1’][‘ipv4']['address'] }}(rw,sync,no_root_squash,no_subtree_check)

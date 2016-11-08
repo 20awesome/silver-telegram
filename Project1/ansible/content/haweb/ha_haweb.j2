@@ -1,0 +1,6 @@
+node ha1web.coachesdirectory.com
+ucast eth0 {{ hostvars[groups['haweb'][0]]['ansible_eth0']['ipv4']['address'] }}
+
+node ha2web.coachesdirectory.com
+ucast eth0 {{ hostvars[groups['haweb'][1]]['ansible_eth0']['ipv4']['address'] }}
+

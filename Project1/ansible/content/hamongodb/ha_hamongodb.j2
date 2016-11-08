@@ -1,0 +1,6 @@
+node ha1mongo.coachesdirectory.com
+ucast eth0 {{ hostvars[groups['hamongodb'][0]]['ansible_eth0']['ipv4']['address'] }}
+
+node ha2mongo.coachesdirectory.com
+ucast eth0 {{ hostvars[groups['hamongodb'][1]]['ansible_eth0']['ipv4']['address'] }}
+

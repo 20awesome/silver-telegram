@@ -1,0 +1,8 @@
+#!/bin/sh
+
+/sbin/iptables --flush
+/sbin/iptables --table nat --flush
+/sbin/iptables --delete-chain
+/sbin/iptables --table nat --delete-chain
+/sbin/iptables-restore < /etc/iptables.rules
+
