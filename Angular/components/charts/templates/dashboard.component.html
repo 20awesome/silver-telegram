@@ -1,0 +1,30 @@
+<div class="pageheader">
+    <h3>
+        <i class="fa fa-dashboard"></i>
+        Dashboard
+    </h3>
+</div>
+
+<div *ngIf="hospital && hospital.is_urgent" class="page">
+    <div data-urgent-care-report></div>
+</div>
+
+<div *ngIf="hospital && hospital.is_primary" class="page">
+    <div data-primary-care-report></div>
+</div>
+
+<div *ngIf="hospital && (hospital.is_primary || hospital.is_urgent)" class="page">
+    <div data-overlake-capacity-report></div>
+</div>
+
+<div *ngIf="hospital && hospital.is_primary" class="page">
+    <div data-primary-care-no-show-report></div>
+</div>
+
+<div *ngIf="hospital && !hospital.is_primary && !hospital.is_urgent" class="panel">
+        <div class="panel-body">
+            <p class='text-center'>No data</p>
+        </div>
+
+    
+</div>

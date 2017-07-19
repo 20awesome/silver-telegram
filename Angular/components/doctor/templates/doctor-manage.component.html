@@ -1,0 +1,193 @@
+<div [ngBusy]="sub">
+
+    <div class="pageheader">
+        <h3>
+            <i class="fa fa-user-md"></i>
+            Doctors
+        </h3>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+
+    <div class="page">
+        <div class="panel panel-default">
+            <header class="panel-heading clearfix">
+
+                <div class="pull-left text-right form-inline">
+
+                    <div class="form-group">
+                        <select *ngIf="searchFilter" class="form-control" (change)="sortBy($event.target.value)">
+                            <option disabled>Sort by</option>
+                            <option [selected]="searchFilter.sort === 'first_name'" value="first_name">Sort by First Name</option>
+                            <option [selected]="searchFilter.sort === 'last_name'" value="last_name">Sort by Last Name</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select *ngIf="searchFilter" class="form-control"  [(ngModel)]="perPage" (change)="onChangePerPage($event.target.value)">
+                            <option [selected]="perPage === '5'" value="5">5/page</option>
+                            <option [selected]="perPage === '10'" value="10">10/page</option>
+                            <option [selected]="perPage === '20'" value="20">20/page</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="pull-right text-right form-inline">
+                    <button type="button"
+                            (click)="ReseFilter()"
+                            class="btn btn-info">Reset</button>
+
+                    <div class="input-group">
+                        <form [formGroup]="searchForm" (ngSubmit)="onSubmitSearch()">
+
+                            <input type="text" placeholder="Search" formControlName="searchText"  class="form-control" />
+
+                            <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+
+                        </form>
+                    </div>
+
+                    <div *ngIf="clinics && clinics.length" class="form-group">
+                        <select class="form-control clinic-select" [(ngModel)]="selectedClinic" (change)="onChangeSelectClinics($event.target.value)">
+                            <option disabled selected>Select clinic</option>
+                            <option *ngFor="let clinic of clinics" [value]="clinic.id">
+                                {{ clinic.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="button"
+                            (click)="showModal()"
+                            class="btn btn-info">Add</button>
+
+                </div>
+            </header>
+
+            <div class="panel-body">
+                <div class="table-responsive" *ngIf="doctors && doctors.length">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Doctor Clinic</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let doctor of doctors | paginate: { id: 'server', itemsPerPage: perPage, currentPage: page, totalItems: totalCount }">
+                                <td>
+                                    <a [routerLink]="[doctor.id]" title="Doctor details">
+                                        <img
+                                                [src]='doctor.photo_url'
+                                                [title]='doctor.full_name'
+                                                onError="this.src='assets/images/User-Default.jpg'"
+                                                [style.width.px]='photoWidth'
+                                                [style.margin.px]='photoMargin'
+                                                class="img-circle">
+                                    </a>
+                                    <a [routerLink]="[doctor.id]" title="Doctor details">
+                                        {{ doctor.full_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a [routerLink]="['../../setting/clinics', doctor.clinic_id]" title="Clinic details">
+                                        {{ doctor.clinic_name }}
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="text-center">
+
+                        <pagination-controls (pageChange)="p = $event" (click)="pageChanged(p)"  autoHide="true" id="server"> </pagination-controls>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="clinics" bsModal #createDoctorModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">Create Doctor</h4>
+            </div>
+
+            <div class="modal-body">
+                <form [formGroup]="createDoctorForm" role="form" (ngSubmit)="onSubmitCreateDoctor()">
+
+                    <div class="form-group">
+
+                        <label for="first_name" class="control-label">First Name</label>
+                        <input type="text"
+                               class="form-control"
+                               name="first_name"
+                               id="first_name"
+                               formControlName="first_name">
+                        <bc-messages [element]="createDoctorForm.controls.first_name" [admin]="true"></bc-messages>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="last_name" class="control-label">Last Name</label>
+                        <input type="text"
+                               class="form-control"
+                               name="last_name"
+                               id="last_name"
+                               formControlName="last_name">
+                        <bc-messages [element]="createDoctorForm.controls.last_name" [admin]="true"></bc-messages>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="position" class="control-label">Title</label>
+                        <input type="text"
+                               class="form-control"
+                               name="position"
+                               id="position"
+                               formControlName="position">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="last_name" class="control-label">Select Clinic</label>
+                        <select class="form-control" (change)="selectClinicByDoctor($event.target.value)" formControlName="clinic_id">
+                            <option selected disabled>Select Clinic</option>
+                            <option *ngFor="let clinic of clinics" [value]="clinic.id">{{ clinic.name }}</option>
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Choose Photo</label>
+                        <input (change)="uploadDoctorPhoto($event)" type="file">
+                        <p *ngIf="photoError" class="text-danger">{{ errorPhotoFile }}</p>
+                    </div>
+
+
+                    <div class="modal-footer clearfix">
+                        <button type="button" class="pull-left btn btn-default" aria-label="Close" (click)="hideModal()">Cancel</button>
+                        <button type="submit" class="btn btn-success" [disabled]="!createDoctorForm.valid || photoError">Create</button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+

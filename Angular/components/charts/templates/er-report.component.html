@@ -1,0 +1,121 @@
+<section class="panel panel-default nm">
+    <header class="panel-heading clearfix">
+        <h3 class="pull-left">ER Report</h3>
+
+        <button type="button" class="pull-right btn btn-info">Export to PDF</button>
+    </header>
+
+    <div class="panel-body">
+        <form class="form-inline clearfix mb-30">
+            <h4 class="pull-left">Average wait Time</h4>
+
+            <div class="pull-right text-right">
+                <div class="form-group">
+                    <select class="form-control">
+                        <option>Select Time Range </option>
+                        <option>Last month</option>
+                    </select>
+                </div>
+
+                <span>or</span>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="date" class="form-control" value="2016-09-06">
+                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+
+                <span> - </span>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="date" class="form-control" value="2016-10-06">
+                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+
+                <haplo-select-dropdown
+                        [options]="clinics"
+                        [(ngModel)]="selectedOptions"
+                        [texts]="dropdownTexts"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="onChange($event)">
+                </haplo-select-dropdown>
+
+                <input type="submit" value="Apply" class="btn btn-info">
+            </div>
+        </form>
+
+        <canvas baseChart
+                class="chart"
+                [datasets]="dataLineSets"
+                [labels]="labels"
+                [colors]="lineColors"
+                [options]="optionsLineChart"
+                [chartType]="'line'">
+        </canvas>
+
+        <h4 class="pv-20">Patient Visits per Day</h4>
+
+        <canvas baseChart
+                class="chart hidden-xs"
+                [datasets]="dataBarSets"
+                [labels]="labels"
+                [colors]="barColors"
+                [options]="optionsBarChart"
+                [chartType]="'bar'">
+        </canvas>
+
+        <div class="row mt-15">
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Average no. of Visits/Day</h4>
+                        <span class="text-extra-large">20.5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Average Patients/Doctor</h4>
+                        <span class="text-extra-large">13.8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Average Wait Time</h4>
+                        <span class="text-extra-large">15m</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Total no. of Visits</h4>
+                        <span class="text-extra-large">205</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Average Patients/Doctor/Hour</h4>
+                        <span class="text-extra-large">5.0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Longest Wait Time</h4>
+                        <span class="text-extra-large">22m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,520 @@
+<div [ngBusy]="sub">
+
+    <div class="pageheader">
+        <h3 *ngIf="doctor">
+            <i class="fa fa-users"></i>
+            Doctor - {{ doctor.full_name }}
+        </h3>
+
+        <div class="breadcrumb-wrapper">
+            <ol class="breadcrumb">
+                <li><a [routerLink]="['../']">Doctors</a></li>
+                <li class="active" *ngIf="doctor">Doctor - {{ doctor.full_name }}</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="page">
+        <div class="panel panel-default" *ngIf="doctor">
+            <div class="panel-body">
+                <div class="tab-block ng-isolate-scope">
+                <tabs>
+                    <tab [title]="'Personal Data'">
+
+                        <ng-container *ngIf="showInfo">
+                            <div class="col-md-3 text-center">
+                                <img [src]="doctor.photo_url" onError="this.src='assets/images/img_default_physician.png'"  class="img-circle" alt="">
+                            </div>
+
+                            <div *ngIf="doctor" class="col-md-6">
+                                <h3>{{ doctor.full_name }}, {{ doctor.position }}</h3>
+                                <p *ngIf="doctor.specialities && doctor.specialities.length">Specialities <span *ngFor="let specialitie of doctor.specialities">{{ specialitie.name }}; </span></p>
+                                <p *ngIf="doctor.languages && doctor.languages.length">Speaks <span *ngFor="let language of doctor.languages">{{ language.name }}; </span></p>
+                                <p *ngIf="doctor.gender" class="mb-10">{{ doctor.gender}}</p>
+                                <p *ngIf="doctor.clinic_name">{{ doctor.clinic_name }}</p>
+                                <p *ngIf="doctor.phone">{{ doctor.phone }}</p>
+                                <p *ngIf="doctor.description">{{ doctor.description }}</p>
+
+
+                                <button (click)="onShowEditForm()" class="btn btn-default">Edit Details</button>
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngIf="showEditForm">
+                            <form [formGroup]="editDoctorForm" role="form" (ngSubmit)="onSubmitUpdateDoctor()">
+
+                            <div class="col-md-3 text-center">
+                                <img [src]="doctor.photo_url" onError="this.src='assets/images/img_default_physician.png'" class="img-circle" alt="">
+                                <div class="mt-10">
+                                    <button *ngIf="doctor.photo_url" (click)="removeDoctorPhoto()" type="button" class="btn btn-danger">Delete Photo</button>
+                                    <button type="button" class="btn btn-default file-input-wrapper">
+                                        <input (change)="uploadDoctorPhoto($event)" type="file" class="custom-input-file">
+                                        Browse
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="first_name" class="control-label">First Name</label>
+                                    <input type="text"
+                                           class="form-control "
+                                           name="first_name"
+                                           id="first_name"
+                                           formControlName="first_name">
+                                    <bc-messages [element]="editDoctorForm.controls.first_name" [admin]="true"></bc-messages>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last_name" class="control-label">Last Name</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="last_name"
+                                           id="last_name"
+                                           formControlName="last_name">
+                                    <bc-messages [element]="editDoctorForm.controls.last_name" [admin]="true"></bc-messages>
+                                </div>
+                                <div class="form-group">
+                                    <label for="position" class="control-label">Title</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="position"
+                                           id="position"
+                                           formControlName="position">
+                                </div>
+                                <div class="form-group">
+                                    <label for="last_name" class="control-label">Select Clinic</label>
+                                    <select class="form-control" (change)="selectClinic($event.target.value)" formControlName="clinic_id">
+                                        <option selected disabled>Select Clinic</option>
+                                        <option *ngFor="let clinic of clinics" [value]="clinic.id">{{ clinic.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="control-label"> Speciality</label>
+                                    <rl-tag-input
+                                            [addOnBlur]="false"
+                                            [autocomplete]="true"
+                                            [autocompleteItems]="autocompleteSpecialityItems"
+                                            [(ngModel)]="autocompleteSpecialityTags"
+                                            [ngModelOptions]="{standalone: true}"
+                                            placeholder="Name a speciality"
+                                            (addTag)="selectSpeciality($event)">
+                                    </rl-tag-input>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="control-label"> Languages</label>
+                                    <rl-tag-input
+                                            [addOnBlur]="false"
+                                            [autocomplete]="true"
+                                            [autocompleteItems]="autocompleteLanguageItems"
+                                            [(ngModel)]="autocompleteLanguageTags"
+                                            [ngModelOptions]="{standalone: true}"
+                                            placeholder="Name a language"
+                                            (addTag)="selectLanguage($event)">
+                                    </rl-tag-input>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone" class="control-label"> Phone</label>
+                                    <input type="text"
+                                           id="phone"
+                                           class="form-control"
+                                           formControlName="phone"
+                                           [textMask]="{mask: mask}"
+                                           placeholder="Phone">
+                                    <bc-messages [element]="editDoctorForm.controls.phone"></bc-messages>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender" class="control-label">Gender</label>
+                                    <select id="gender" class="form-control" (change)="selectGender($event.target.value)" formControlName="gender">
+                                        <option selected disabled>Select Gender</option>
+                                        <option *ngFor="let sex of arrayOfSexes" [value]="sex.value">{{ sex.label }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description" class="control-label">Other</label>
+                                    <textarea formControlName="description" id="description" class="form-control" rows="5"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-info" [disabled]="!editDoctorForm.valid || photoError">Save Changes</button>
+                                    <button type="button" class="btn btn-default" aria-label="Close" (click)="hideEditForm()">Cancel</button>
+                                </div>
+                            </div>
+                            </form>
+                        </ng-container>
+
+                    </tab>
+
+                    <tab title="Practice Hours">
+                        <ng-container *ngIf="(!doctorSchedules || !doctorSchedules.length) && !updatePracticeHours">
+                            <p>There is no practice hours</p>
+                        </ng-container>
+
+                        <ng-container *ngIf="doctorSchedules && doctorSchedules.length && !updatePracticeHours">
+                            <ng-container *ngFor="let schedule of doctorSchedules ; let i=index">
+                                <h5 *ngIf="i === 0" class="mb-20">Current Practice Hours</h5>
+
+                                <h5 *ngIf="i != 0" class="mb-20">From {{ DateFormat(schedule.active_from) }}</h5>
+
+                                <dl class="dl-horizontal">
+                                    <ng-container *ngFor="let workTime of schedule.work_times; let y=index">
+                                        <dt *ngIf="workTime.day === 0 && workTime.first">Sun</dt>
+                                        <dd *ngIf="workTime.day === 0" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 1 && workTime.first">Mon</dt>
+                                        <dd *ngIf="workTime.day === 1" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 2 && workTime.first">Tue</dt>
+                                        <dd *ngIf="workTime.day === 2" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 3 && workTime.first">Wed</dt>
+                                        <dd *ngIf="workTime.day === 3" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 4 && workTime.first">Thu</dt>
+                                        <dd *ngIf="workTime.day === 5" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 5 && workTime.first">Fri</dt>
+                                        <dd *ngIf="workTime.day === 5" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                        <dt *ngIf="workTime.day === 6 && workTime.first">Sat</dt>
+                                        <dd *ngIf="workTime.day === 6" class="pb-10">
+                                            {{HourFormat(workTime.start)}} - {{HourFormat(workTime.finish)}}
+                                        </dd>
+                                    </ng-container>
+                                </dl>
+
+                            </ng-container>
+
+                            <!--<button type="button" class="btn btn-default">Change</button>-->
+                        </ng-container>
+
+                        <ng-container *ngIf="!updatePracticeHours">
+                            <button type="button" class="btn btn-default" (click)="showPracticeHours()">Change</button>
+                        </ng-container>
+
+                        <ng-container *ngIf="updatePracticeHours">
+
+                            <div class="clearfix mb-30">
+                                <h5 class="pull-left mr-20">Change practice hours starting from</h5>
+                                <p-calendar [monthNavigator]="true"
+                                            [yearNavigator]="true"
+                                            placeholder="{{ currentDate | date }}"
+                                            [selectOtherMonths]="true"
+                                            [showIcon]="true"
+                                            inputStyleClass="form-control"
+                                            (onSelect)="setPracticeHoursDate($event)"
+                                            yearRange="2017:2030"
+                                            dateFormat="mm.dd.yy"></p-calendar>
+                            </div>
+
+                            <div class="clearfix">
+                                <div class="panel panel-default time-block" *ngFor="let weekDay of intervalPracticeHoursWeek">
+                                <div class="panel-heading clearfix">
+                                    <label class="switch switch-success pull-right nm">
+                                        <input type="checkbox" (change)="toggleDay(weekDay.id)" [checked]="true">
+                                        <i></i>
+                                    </label>
+                                    <h4 class="panel-title mt-5">{{ weekDay.label }}</h4>
+                                </div>
+                                <div class="panel-body" *ngIf="weekDay.showTime">
+                                    <form [formGroup]="rangeForm" (change)="testValidation($event)" (ngSubmit)="savePracticeHours()">
+                                        <div formArrayName="timesRange_{{ weekDay.id }}">
+
+                                            <ng-container *ngIf="weekDay.id === 0">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_0.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix" >
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"   formControlName="startTime"  ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"   formControlName="endTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 1">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_1.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 2">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_2.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 3">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_3.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 4">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_4.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 5">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_5.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                            <ng-container *ngIf="weekDay.id === 6">
+                                                <div *ngFor="let range of rangeForm.controls.timesRange_6.controls; let i=index">
+                                                    <div [formGroupName]="i" class="timepicker-wrap clearfix">
+                                                        <div class="pull-left mr-15">
+                                                            <timepicker  [showSpinners]="false"  formControlName="startTime" ></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <timepicker  [showSpinners]="false"  formControlName="endTime"></timepicker>
+                                                        </div>
+                                                        <div class="pull-left">
+                                                            <button class="btn btn-link mt-5" type="button" (click)="removePracticeHours(i, weekDay.id)">
+                                                                <span class="glyphicon glyphicon-trash"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+
+                                        </div>
+
+                                    </form>
+
+                                    <div class="mt-10">
+                                        <button type="button" class="btn btn-link" (click)="addPracticeHours($event, weekDay.id)">
+                                            <i class="fa fa-plus"></i>
+                                            Add Range
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-info" [disabled]="!formvalid" (click)="savePracticeHours(rangeForm, 'create')">Save Changes</button>
+                            <button type="button" class="btn btn-default" (click)="showPracticeHours()">Cancel</button>
+                        </ng-container>
+                    </tab>
+
+                    <tab title="Assistants & Schedulers">
+
+                        <div class="clearfix mb-20">
+                            <div class="form-group pull-left">
+                                <label class="switch switch-success pull-left mr-10">
+                                    <input type="checkbox">
+                                    <i></i>
+                                </label>
+                                <label>Personal Assistant & Schedulers</label>
+                            </div>
+
+                            <div class="pull-right form-inline">
+                                <div class="input-group">
+                                    <input type="text" placeholder="Search" [(ngModel)]="SchedulersSearch" class="form-control">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <button class="btn btn-info" type="button" (click)="showModal()">Add</button>
+                            </div>
+                        </div>
+
+                        <p *ngIf="!assistances || !assistances.length" class="text-center text-muted">
+                            All assistants and schedulers can work with {{doctor.full_name}}
+                        </p>
+
+                        <div class="table-responsive">
+                            <table *ngIf="assistances && assistances.length" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th class="text-center">Role</th>
+                                        <th class="text-center">Phone</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr *ngFor="let assistance of assistances | DoctorAssistanceFilterPipe:SchedulersSearch">
+                                        <td>
+                                            <img [src]='assistance.photo_url'
+                                                 [title]='assistance.full_name'
+                                                 width="50"
+                                                 onError="this.src='assets/images/User-Default.jpg'"
+                                                 class="img-circle mr-10"
+                                                 alt="Thumb">
+                                            {{assistance.full_name}}
+                                        </td>
+                                        <td class="text-center">{{assistance.role}}</td>
+                                        <td class="text-center">{{assistance.phone}}</td>
+                                        <td class="text-center actions">
+                                            <button type="button" class="btn btn-danger" (click)="DeleteDoctorAssistances(assistance.id)">Remove</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </tab>
+                </tabs>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--*ngIf="scheduleStaff"-->
+<div bsModal #addScheduleModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header clearfix form-inline">
+                <h4 class="modal-title pull-left mt-5">Select Please</h4>
+                <div class="input-group pull-right">
+                    <form #form="ngForm" (ngSubmit)="onSubmitSearch(form.value)">
+                    <!--<input type="text" placeholder="Search" formControlName="searchText"  class="form-control" />-->
+                    <input type="text" placeholder="Search" name="searchEmployees" [(ngModel)]="searchEmployees"  class="form-control" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="table-responsive assistant-table">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th class="text-center">Role</th>
+                            <th class="text-center">Phone</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr *ngFor="let Employee of Employees | paginate: { itemsPerPage: perPage, currentPage: page, totalItems: EmployeesCount }">
+
+                            <td><label class="ui-checkbox"><input type="checkbox"><span></span></label></td>
+
+                            <td>
+                                <img [src]='Employee.photo_url'
+                                     [title]='Employee.full_name'
+                                     width="50"
+                                     onError="this.src='assets/images/User-Default.jpg'"
+                                     class="img-circle mr-10"
+                                     alt="Thumb">
+                                {{Employee.full_name}}
+                            </td>
+                            <td class="text-center">{{Employee.role}}</td>
+                            <td class="text-center">{{Employee.phone}}</td>
+
+
+
+
+                            <!--<td>-->
+                                <!--<img class="img-circle mr-10" width="50" src="assets/images/User-Default.jpg" alt="Thumb">-->
+                                <!--Jhon Snow-->
+                            <!--</td>-->
+                            <!--<td class="text-center">Assistant</td>-->
+                            <!--<td class="text-center">+1 555 8787688</td>-->
+                            <td class="text-center actions">
+                                <button type="button" class="btn btn-info">Add</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-center">
+                    <pagination-controls (pageChange)="p = $event" (click)="pageChanged(p)"  autoHide="true" > </pagination-controls>
+                </div>
+            </div>
+
+            <div class="modal-footer text-center">
+                <button type="button" class="btn btn-default">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

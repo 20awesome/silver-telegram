@@ -1,0 +1,76 @@
+<section class="panel panel-default nm">
+    <header class="panel-heading clearfix">
+        <h3 class="pull-left">Demand vs Capacity</h3>
+        <button type="button" (click)="ExportToPdf()" class="pull-right btn btn-info">Export to PDF</button>
+    </header>
+
+    <div #reportSelector class="table-responsive">
+        <table class="table table-striped" *ngIf="capacitys && capacitys.length">
+            <thead>
+                <tr>
+                    <th class="text-center">Clinic Name</th>
+                    <th class="">AWT (minutes)</th>
+                    <th class="">Medical Staff</th>
+                    <th class="">Patients Being Served</th>
+                    <th class="">Patients/Staff</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let capacity  of capacitys">
+                    <td >{{capacity.name}}</td>
+                    <td class="">{{capacity.average_wait_time}}</td>
+                    <td class="">{{capacity.staff}}</td>
+                    <td class="">{{capacity.patients}}</td>
+                    <td class="">{{capacity.patients_per_staff}}</td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <!--<div *ngFor="let capacity  of capacitys" class="row mt-15">
+            <div class="col-md-3 col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center report-info">
+                        <h4>Name</h4>
+                        <span *ngIf="capacity" class="text-extra-large">{{capacity.name}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center report-info">
+                        <h4>AWT</h4>
+                        <span *ngIf="capacity" class="text-extra-large">{{capacity.average_wait_time}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center report-info">
+                        <h4>Medical Staff</h4>
+                        <span *ngIf="capacity" class="text-extra-large">{{capacity.staff}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center report-info">
+                        <h4>Patients being served</h4>
+                        <span *ngIf="capacity" class="text-extra-large">{{capacity.patients}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center report-info">
+                        <h4>Patients/Staff</h4>
+                        <span *ngIf="capacity" class="text-extra-large">{{capacity.patients_per_staff}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+
+    </div>
+</section>

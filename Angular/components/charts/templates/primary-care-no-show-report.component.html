@@ -1,0 +1,117 @@
+<section class="panel panel-default nm">
+    <header class="panel-heading clearfix">
+        <h3 class="pull-left">Primary Care No-Show Report</h3>
+
+        <button type="button" (click)="ExportToPdfHtml()" class="pull-right btn btn-info">Export to PDF</button>
+    </header>
+
+    <div class="panel-body">
+        <div class="form-inline clearfix mb-30">
+            <h4 class="pull-left">Percent of no-shows and unfilled slots</h4>
+            <div class="pull-right text-right">
+
+                <div class="form-group" *ngIf="DropDownDate">
+                    <select  class="form-control"  [(ngModel)]="DropDownDate" (change)="onChangeDropDownDate($event.target.value)">
+                        <option [selected]="DropDownDate === 'Last week'" value="Last week">Last week</option>
+                        <option [selected]="DropDownDate === 'Last month'" value="Last month">Last month</option>
+                        <option [selected]="DropDownDate === 'Year to date'" value="Year to date">Year to date</option>
+                    </select>
+                </div>
+
+                <span>or</span>
+
+                <div class="form-group">
+                    <p-calendar [monthNavigator]="true"
+                                [showOtherMonths]="false"
+                                placeholder="Select start date"
+                                [yearNavigator]="true"
+                                [selectOtherMonths]="true"
+                                [showIcon]="true"
+                                inputStyleClass="form-control"
+                                (onSelect)="filterReportByStartDate($event)"
+                                yearRange="1945:2030"
+                                [ngModelOptions]="{standalone: true}"
+                                dateFormat="mm.dd.yy"
+                                [(ngModel)]="dateValueStart"></p-calendar>
+                </div>
+
+                <span> - </span>
+
+                <div class="form-group">
+                    <p-calendar [monthNavigator]="true"
+                                [showOtherMonths]="false"
+                                placeholder="Select end date"
+                                [yearNavigator]="true"
+                                [selectOtherMonths]="true"
+                                [showIcon]="true"
+                                inputStyleClass="form-control"
+                                (onSelect)="filterReportByEndDate($event)"
+                                yearRange="1945:2030"
+                                [ngModelOptions]="{standalone: true}"
+                                dateFormat="mm.dd.yy"
+                                [(ngModel)]="dateValueEnd"></p-calendar>
+                </div>
+
+                <div *ngIf="clinics && clinics.length" class="form-group">
+                    <select class="form-control clinic-select" [(ngModel)]="clinic_id" (change)="onChangeSelectClinics($event.target.value)">
+                        <option disabled selected>Select clinic</option>
+                        <option *ngFor="let clinic of clinics" [value]="clinic.id">
+                            {{ clinic.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <input class="btn btn-info" type="button" (click)="GetNoshows()" value="Apply">
+                <button type="button" (click)="ReseFilter()" class="btn btn-info">Reset</button>
+
+            </div>
+
+        </div>
+
+        <canvas  #baseChartselector baseChart *ngIf="dataBarSets && dataBarSets.length && dataBarSets[0] && dataBarSets[0].data "
+                class="chart"
+                [datasets]="dataBarSets"
+                [labels]="labels"
+                [options]="optionsBarChart"
+                [colors]="barColors"
+                [chartType]="'bar'">
+        </canvas>
+        <div #reportData class="row">
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>% of No-Shows YTD</h4>
+                        <span *ngIf="no_shows" class="text-extra-large">{{no_shows.no_shows_percent}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Total no of No-Shows YTD</h4>
+                        <span *ngIf="no_shows" class="text-extra-large">{{no_shows.no_shows}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>% of Unfilled Slots YTD</h4>
+                        <span  *ngIf="no_shows" class="text-extra-large">{{no_shows.unfilled_percent}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h4>Total No. of Unfilled Slots YTD</h4>
+                        <span *ngIf="no_shows" class="text-extra-large">{{no_shows.unfilled}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
